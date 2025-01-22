@@ -122,10 +122,37 @@ func login(c *gin.Context, db *sql.DB) {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid username or password"})
 			return
 		}
-		// Return error if any other error occured
+		// Return error if other error occurred
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
 
 	// Return ID of user
+	c.JSON(http.StatusOK, gin.H{"id": id})
+}
+
+// Channel creation endpoint
+func createChannel(c *gin.Context, db *sql.DB) {
+	// Parse JSON request body into Channel struct
+	var channel Channel
+	if err := c.ShouldBindJSON(&channel); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Insert channel into database
+	result, err := db.Exec("INSERT INTO channels (name) VALUES (?)", channel.Name)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get ID of newly inserted channel
+	id, err := result.LastInsertId()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Return ID of newly inserted channel
 	c.JSON(http.StatusOK, gin.H{"id": id})
 }
