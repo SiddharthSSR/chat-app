@@ -79,12 +79,12 @@ func createUser(c *gin.Context, db *sql.DB) {
 	// Parse JSON request body into User struct
 	var user User
 	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	// Insert user into database
-	result, err := db.Exec("INSERT INTO users (username, password) VAUES (? ?)", user.Username, user.Password)
+	result, err := db.Exec("INSERT INTO users (username, password) VALUES (?, ?)", user.Username, user.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
