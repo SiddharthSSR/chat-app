@@ -37,7 +37,7 @@ func main() {
 		log.Fatal(err)
 	}
 	// Print the working directory
-	fmt.Println("Working Directory:", wd)
+	fmt.Println("Working directory:", wd)
 
 	// Open the SQLite database file
 	db, err := sql.Open("sqlite", wd+"/database.db")
@@ -68,7 +68,7 @@ func main() {
 	// Login endpoint
 	r.POST("/login", func(c *gin.Context) { login(c, db) })
 
-	err = r.RUN(":8080")
+	err = r.Run(":8080")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -155,4 +155,36 @@ func createChannel(c *gin.Context, db *sql.DB) {
 
 	// Return ID of newly inserted channel
 	c.JSON(http.StatusOK, gin.H{"id": id})
+}
+
+// Channel listing endpoint
+func listChannels(c *gin.Context, db *sql.DB) {
+	// Query database for channels
+	rows, err := db.Query("SELECT id, name FROM channels")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Create slice of channels
+	var channels []Channel
+
+	// Iterate over rows
+	for rows.Next() {
+		// Create new channel
+		var channel Channel
+
+		// Scan row into channel
+		err := rows.Scan(&channel.ID, &channel.Name)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		// Append channel to slice
+		channels = append(channels, channel)
+	}
+
+	// Return slice of channels
+	c.JSON(http.StatusOK, channels)
 }
