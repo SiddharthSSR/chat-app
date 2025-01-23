@@ -226,14 +226,14 @@ func listMessages(c *gin.Context, db *sql.DB) {
 		return
 	}
 
-	// Parse optimal limit query parameter from URL
+	// Parse optional limit query parameter from URL
 	limit, err := strconv.Atoi(c.Query("limit"))
 	if err != nil {
 		// Set limit to 100 if not provided
 		limit = 100
 	}
 
-	// Parse last message ID query parameter from URL. this is used to get messages after a certain message
+	// Parse last message ID query parameter from URL. This is used to get messages after a certain message.
 	lastMessageID, err := strconv.Atoi(c.Query("lastMessageID"))
 	if err != nil {
 		// Set last message ID to 0 if not provided
