@@ -188,3 +188,30 @@ func listChannels(c *gin.Context, db *sql.DB) {
 	// Return slice of channels
 	c.JSON(http.StatusOK, channels)
 }
+
+// Message creation endpoint
+func createMessage(c *gin.Context, db *sql.DB) {
+	// Parse JSON request body into Message struct
+	var message Message
+	if err := c.ShouldBindJSON(&message); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Insert message into database
+	result, err := db.Exec("INSERT into messages (channel_id, user_id, messages) VALUES (?, ?, ?)", message.ChannelID, message.UserID, message.Text)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get ID of newly inserted message
+	id, err := result.LastInsertId()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Return ID of newly inserted message
+	c.JSON(http.StatusOK, gin.H{"id": id})
+}
