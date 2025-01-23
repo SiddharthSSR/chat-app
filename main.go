@@ -199,7 +199,7 @@ func createMessage(c *gin.Context, db *sql.DB) {
 	}
 
 	// Insert message into database
-	result, err := db.Exec("INSERT into messages (channel_id, user_id, messages) VALUES (?, ?, ?)", message.ChannelID, message.UserID, message.Text)
+	result, err := db.Exec("INSERT INTO messages (channel_id, user_id, message) VALUES (?, ?, ?)", message.ChannelID, message.UserID, message.Text)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
