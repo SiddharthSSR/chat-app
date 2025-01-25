@@ -19,7 +19,7 @@ const ChannelsList = ({ selectedChannel, setSelectedChannel }) => {
 
 	useEffect(() => {
 		const fetchChannels = async () => {
-			const response = await fetch("/channels");
+			const response = await fetch("http://localhost:8080/channels");
 			const data = await response.json();
 			setChannels(data || []);
 		};
@@ -27,7 +27,7 @@ const ChannelsList = ({ selectedChannel, setSelectedChannel }) => {
 	}, []);
 
 	const handleAddChannel = async () => {
-		const response = await fetch("/channels", {
+		const response = await fetch("http://localhost:8080/channels", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ name: newChannelName }),

@@ -7,7 +7,7 @@ const MessageEntry = ({ selectedChannel, onNewMessage }) => {
         const userID = localStorage.getItem('userId');
         const userName = localStorage.getItem('userName');
 
-        const response = await fetch('/messages', {
+        const response = await fetch('http://localhost:8080/messages', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

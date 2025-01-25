@@ -3,11 +3,13 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/glebarez/go-sqlite"
 )
@@ -42,6 +44,10 @@ func main() {
 
 	// Open the SQLite database file
 	db, err := sql.Open("sqlite", wd+"/database.db")
+	if err != nil {
+		log.Fatal("Failed to open database:", err)
+	}
+	fmt.Println("Database connection established")
 
 	defer func(db *sql.DB) {
 		err := db.Close()
@@ -50,8 +56,25 @@ func main() {
 		}
 	}(db)
 
+	// Read the schema.sql file
+	schemaPath := wd + "/schema.sql"
+	schema, err := ioutil.ReadFile(schemaPath)
+	if err != nil {
+		log.Fatal("Failed to read schema.sql:", err)
+	}
+
+	// Execute the schema.sql to create tables
+	_, err = db.Exec(string(schema))
+	if err != nil {
+		log.Fatal("Failed to initialize database schema:", err)
+	}
+	fmt.Println("Database schema initialized successfully")
+
 	// Create the Gin router
 	r := gin.Default()
+
+	// Enable CORS
+	r.Use(cors.Default())
 
 	if err != nil {
 		log.Fatal(err)
@@ -68,6 +91,11 @@ func main() {
 
 	// Login endpoint
 	r.POST("/login", func(c *gin.Context) { login(c, db) })
+
+	// Explicitly serve index.html at the root
+	r.StaticFile("/", "chat-ui/public/index.html")
+	// Serve static files under /static
+	// r.StaticFS("/static", http.Dir("chat-ui/build/static"))
 
 	err = r.Run(":8080")
 	if err != nil {
